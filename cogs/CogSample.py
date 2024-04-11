@@ -8,10 +8,6 @@ class CogSample(commands.Cog):
 		self.bot = bot
 
 
-	def basfnak(self)
-		pass
-
-
 
 async def setup(bot):
 	await bot.add_cog(CogSample(bot), guild=bot.guild_object)
