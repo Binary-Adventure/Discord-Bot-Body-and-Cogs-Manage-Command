@@ -160,5 +160,5 @@ cython_debug/
 #.idea/
 
 # my ignores
-./config.json
+config.json
 .bat
