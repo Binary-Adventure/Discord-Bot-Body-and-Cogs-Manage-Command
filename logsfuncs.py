@@ -1,9 +1,11 @@
 """
-module for logs for bot
-fncs: 
-INFO(text) [text - Text for print in log]
-ERROR()
+$ Module for logs for bot
+
+functions: 
+INFO(text, arg=None) [text - Text for print in log; arg=None - Argument for the informativeness of the log]
+ERROR(text, err=None) []
 """
+
 from time import gmtime, strftime
 
 
