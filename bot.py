@@ -38,7 +38,6 @@ class DiscordBot(commands.Bot):
 				except Exception as e:
 					print(f'\n\nEXCEPTION: {cog[:-3]}\n\n{e}')
 
-		[print(i) for i in self.cogs]
 		# await self.tree.sync(guild=self.guild_object)
 
 
@@ -50,9 +49,13 @@ class DiscordBot(commands.Bot):
 	async def on_command_error(self, ctx, exception):
 		if ctx.author.id in self.devops:
 			await ctx.reply(
-				content=exception,
+				exception,
 				ephemeral=True
 			)
+
+
+# class HelpCommand(commands.MinimalHelpCommand):
+
 
 
 bot = DiscordBot(
@@ -111,7 +114,7 @@ async def cogs(ctx, mode=None, target=None):
 			)
 
 	except Exception as e:
-		await
+		pass
 
 
 
@@ -128,7 +131,7 @@ async def main():
 				await bot.start(conf['BotSettings']['Token'])
 
 		except discord.errors.LoginFailure:
-			print('\n Invalid Token\n')
+			raise NameError('\n Invalid Token\n')
 
 
 if __name__ == '__main__':
