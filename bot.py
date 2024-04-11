@@ -5,6 +5,7 @@ from discord.ext import commands
 import asyncio
 import json
 import os
+import logsfuncs
 from time import perf_counter
 
 
@@ -42,7 +43,8 @@ class DiscordBot(commands.Bot):
 
 
 	async def on_ready(self):
-		print(f'\n [ bot is online ] {perf_counter()} seconds after launch')
+		INFO(f"{perf_counter()} seconds after launch", "bot is online")
+		#print(f'\n [ bot is online ] {perf_counter()} seconds after launch')
 
 
 	async def on_command_error(self, ctx, exception):
@@ -103,6 +105,7 @@ async def cogs(ctx, mode=None, target=None):
 			[embed.add_field(name=i, value='*** +'+'-'*50+'<***') for i in [f' |> {i} is Enable' if i in bot.cogs else f' |> {i} is Disable' if i not in bot.cogs else f' | !!! {i} is not correct working' for i in cogs_in_folder]]
 
 			await ctx.reply(
+
 				embed=embed,
 				ephemeral=True
 			)
