@@ -162,3 +162,4 @@ cython_debug/
 # my ignores
 config.json
 .bat
+cogs/trashCog.py

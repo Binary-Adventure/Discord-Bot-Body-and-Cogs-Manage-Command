@@ -30,13 +30,10 @@ class DiscordBot(commands.Bot):
 
 
 	async def setup_hook(self):
-		for cog in os.listdir('cogs/'):
-			if cog.endswith('.py') and cog[:1] != '_':
-				try:
-					await self.load_extension(f'cogs.{cog[:-3]}')
-
-				except Exception as e:
-					print(f'\n\nEXCEPTION: {cog[:-3]}\n\n{e}')
+		try:
+			[await self.load_extension(f'cogs.{cog[:-3]}') for cog in os.listdir('cogs/') if cog.endswith('.py') and cog[:1] != '_']
+		except Exception as e:
+			print(e)
 
 		await self.tree.sync(guild=self.guild_object)
 
@@ -55,16 +52,6 @@ bot = DiscordBot(
 	help_command=None,
 	intents=discord.Intents.all()
 )
-
-
-@bot.command()
-async def test(ctx, member: discord.Member=None):
-	if member == None:
-		member: discord.Member = 663108766689919064
-		print(member)
-
-	else:
-		print(member)
 
 
 
