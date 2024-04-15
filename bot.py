@@ -43,6 +43,7 @@ class DiscordBot(commands.Bot):
 
 	async def on_ready(self):
 		INFO(f"{perf_counter()} seconds after launch", "bot is online")
+		print("3")
 
 
 	async def on_command_error(self, ctx, exception):
