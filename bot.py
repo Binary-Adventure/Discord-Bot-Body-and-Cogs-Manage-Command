@@ -67,7 +67,7 @@ bot = DiscordBot(
 	app_commands.Choice(name='all-switch', value='3'),
 	app_commands.Choice(name='all-reload', value='4')
 ])
-async def cogs_control(inter: discord.Interaction, mode: app_commands.Choice[str], target: str):
+async def cogs_control(inter: discord.Interaction, mode: app_commands.Choice[str], target: str=None):
 	if inter.user.id not in bot.devops:
 		return
 
@@ -77,35 +77,60 @@ async def cogs_control(inter: discord.Interaction, mode: app_commands.Choice[str
 		if '.' in target:
 			target[:target.find('.')]
 
+		if target in bot.cogs and target in cogs_in_folder:
+			await bot.unload_extension(f'cogs.{target}')
+
+		elif target not in bot.cogs and target in cogs_in_folder:
+			await bot.load_extension(f'cogs.{target}')
+
+		else:
+			pass
+
+
 	elif mode.name == 'target-reload':
 		if '.' in target:
 			target[:target.find('.')]
 
+		if target in bot.cogs and target in cogs_in_folder:
+			await bot.reload_extension(f'cogs.{target}')
+
+		elif target not in bot.cogs and target in cogs_in_folder:
+			await bot.load_extension(f'cogs.{target}')
+
+		else:
+			# ! message Error
+			pass
+
+
 	elif mode.name == 'all-switch':
-		for file in os.listdir('cogs/'):
-			if file.endswith('.py') and file[:1] not in ['_', '-']:
-				try:
-					if file[:-3].lower() in [i.lower() for i in bot.cogs]:
-						await bot.unload_extension(f'cogs.{file[:-3]}')
+		pass
+		# for file in os.listdir('cogs/'):
+		# 	if file.endswith('.py') and file[:1] not in ['_', '-']:
+		# 		try:
+		# 			if file[:-3].lower() in [i.lower() for i in bot.cogs]:
+		# 				await bot.unload_extension(f'cogs.{file[:-3]}')
 
-					else:
-						await bot.load_extension(f'cogs.{file[:-3]}')
+		# 			else:
+		# 				await bot.load_extension(f'cogs.{file[:-3]}')
 
-				except Exception as e:
-					WARNING(f'{file[:-3]}', f'{e}')
+		# 		except Exception as e:
+		# 			WARNING(f'{file[:-3]}', f'{e}')
+
 
 	elif mode.name == 'all-reload':
-		for file in os.listdir('cogs/'):
-			if file.endswith('.py') and file[:1] not in ['_', '-']:
-				try:
-					if file[:-3].lower() in [i.lower() for i in bot.cogs]:
-						await bot.reload_extension(f'cogs.{file[:-3]}')
+		pass
+		# for file in os.listdir('cogs/'):
+		# 	if file.endswith('.py') and file[:1] not in ['_', '-']:
+		# 		try:
+		# 			if file[:-3].lower() in [i.lower() for i in bot.cogs]:
+		# 				await bot.reload_extension(f'cogs.{file[:-3]}')
 
-					else:
-						await bot.load_extension(f'cogs.{file[:-3]}')
+		# 			else:
+		# 				await bot.load_extension(f'cogs.{file[:-3]}')
 
-				except Exception as e:
-					WARNING(f'{file[:-3]}', f'{e}')
+		# 		except Exception as e:
+		# 			WARNING(f'{file[:-3]}', f'{e}')
+
 
 	else:
 		# ? generation of embed with cogs statuses
@@ -114,7 +139,7 @@ async def cogs_control(inter: discord.Interaction, mode: app_commands.Choice[str
 			color=discord.Color.green()
 		)
 
-		[embed.add_field(name=i, value='*** +'+'-'*50+'<***') for i in [f' |> {i} is Enable' if i in bot.cogs else f' |> {i} is Disable' if i not in bot.cogs else f' | !!! {i} is not correct working' for i in cogs_in_folder]]
+		[embed.add_field(name=i, value='*** +'+'-'*50+'<***', inline=False) for i in [f' |> {i} is Enable' if i in bot.cogs else f' |> {i} is Disable' if i not in bot.cogs else f' | !!! {i} is not correct working' for i in cogs_in_folder]]
 
 		await inter.response.send_message(
 			embed=embed,
@@ -123,9 +148,9 @@ async def cogs_control(inter: discord.Interaction, mode: app_commands.Choice[str
 
 
 @bot.command()
-async def asyn(ctx):
-	await bot.tree.sync(guild=bot.guild_object)
-	print("commands is asynced")
+async def test(ctx, target):
+	await bot.unload_extension(f'cogs.{target}')
+
 
 
 async def main():
