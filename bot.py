@@ -46,14 +46,16 @@ class DiscordBot(commands.Bot):
 
 	async def on_ready(self):
 		INFO(f"{perf_counter()} seconds after launch", "bot is online")
-
-		self.embed_cogs = await self.get_channel(self.bot_info['guild_object'].channels, name='cogs').send('akfhalkhf')
-
+		try:
+			channel = self.get_channel(self.get_guild(self.bot_info['guild_id']).channels, name='cogs')
+			self.embed_cogs = await channel.send('akfhalkhf')
+		except Exception as e:
+			print(e)
 		print(self.embed_cogs)
 
 
 	async def edit_embed_with_cogs(self):
-		channel = self.get_channel(ctx.guild.channels, name='cogs')
+		channel = self.get_channel(self.get_guild(self.bot_info['guild_id']).channels, name='cogs')
 
 
 	async def on_command_error(self, ctx, exception):
