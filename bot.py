@@ -17,7 +17,7 @@ if os.path.exists(configFile):
 		conf = json.load(file)
 
 else:
-	raise NameError('Config File is Not Found')
+	ERROR('Config File is Not Found')
 
 
 
@@ -36,7 +36,7 @@ class DiscordBot(commands.Bot):
 					await self.load_extension(f'cogs.{cog[:-3]}')
 
 				except Exception as e:
-					print(f'\n\nEXCEPTION: {cog[:-3]}\n\n{e}')
+					WARNING(f'{cog[:-3]}', f'{e}')
 
 		await self.tree.sync(guild=self.guild_object)
 
@@ -103,7 +103,7 @@ async def cogs_control(inter: discord.Interaction, mode: app_commands.Choice[str
 						await bot.load_extension(f'cogs.{file[:-3]}')
 
 				except Exception as e:
-					print(f'\n\nИСКЛЮЧЕНИЕ: {file[:-3]}\n\n{e}')
+					WARNING(f'{file[:-3]}', f'{e}')
 
 	elif mode.name == 'all-reload':
 		for file in os.listdir('cogs/'):
@@ -116,7 +116,7 @@ async def cogs_control(inter: discord.Interaction, mode: app_commands.Choice[str
 						await bot.load_extension(f'cogs.{file[:-3]}')
 
 				except Exception as e:
-					print(f'\n\nИСКЛЮЧЕНИЕ: {file[:-3]}\n\n{e}')
+					WARNING(f'{file[:-3]}', f'{e}')
 
 	else:
 		# ? generation of embed with cogs statuses
@@ -141,10 +141,10 @@ async def asyn(ctx):
 
 async def main():
 	if not conf['BotSettings']['Token']:
-		raise NameError('Token Not Found')
+		ERROR('Token Not Found')
 
 	elif not conf['BotSettings']['Prefix']:
-		raise NameError('Prefix Not Found')
+		ERROR('Prefix Not Found')
 
 	else:
 		try:
@@ -152,7 +152,7 @@ async def main():
 				await bot.start(conf['BotSettings']['Token'])
 
 		except discord.errors.LoginFailure:
-			raise NameError('\n Invalid Token\n')
+			ERROR('\n Invalid Token\n')
 
 
 if __name__ == '__main__':
@@ -160,4 +160,4 @@ if __name__ == '__main__':
 		asyncio.run(main())
 
 	except KeyboardInterrupt:
-		print('\n key exit is pressed')
+		WARNING('\n key exit is pressed')
