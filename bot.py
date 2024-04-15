@@ -46,16 +46,25 @@ class DiscordBot(commands.Bot):
 
 	async def on_ready(self):
 		INFO(f"{perf_counter()} seconds after launch", "bot is online")
-		try:
-			channel = self.get_channel(self.get_guild(self.bot_info['guild_id']).channels, name='cogs')
-			self.embed_cogs = await channel.send('akfhalkhf')
-		except Exception as e:
-			print(e)
-		print(self.embed_cogs)
+
+		self.cogs_channel = discord.utils.get(self.get_guild(self.bot_info['guild_id']).channels, name='cogs')
+		await self.cogs_channel.purge()
+		self.message_cogs = await self.cogs_channel.send(embed=await self.cogs_embed)
 
 
-	async def edit_embed_with_cogs(self):
-		channel = self.get_channel(self.get_guild(self.bot_info['guild_id']).channels, name='cogs')
+	async def edit_cogs_embed(self):
+		await self.message_cogs.edit(embed=await self.cogs_embed)
+
+	
+	@property
+	async def cogs_embed(self):
+		embed = discord.Embed(
+			title=' Cogs:',
+			color=discord.Colour.dark_purple()
+		)
+
+		[embed.add_field(name=i, value='*** +'+'-'*80+'<***', inline=False) for i in [f' |> {i} is Enable' if i in self.cogs else f' |> {i} is Disable' if i not in self.cogs else f' | !!! {i} is not correct working' for i in [i[:-3] for i in os.listdir('cogs/') if i.endswith('.py') and i[:1] != '_']]]
+		return embed
 
 
 	async def on_command_error(self, ctx, exception):
@@ -68,6 +77,11 @@ bot = DiscordBot(
 	help_command=None,
 	intents=discord.Intents.all()
 )
+
+
+@bot.command()
+async def test(ctx):
+	await bot.edit_cogs_embed()
 
 
 
@@ -146,16 +160,8 @@ async def cogs_control(inter: discord.Interaction, mode: app_commands.Choice[str
 
 
 	else:
-		# ? generation of embed with cogs statuses
-		embed = discord.Embed(
-			title=' Cogs:',
-			color=discord.Color.green()
-		)
-
-		[embed.add_field(name=i, value='*** +'+'-'*50+'<***', inline=False) for i in [f' |> {i} is Enable' if i in bot.cogs else f' |> {i} is Disable' if i not in bot.cogs else f' | !!! {i} is not correct working' for i in cogs_in_folder]]
-
 		await inter.response.send_message(
-			embed=embed,
+			embed=await bot.cogs_embed,
 			ephemeral=True
 		)
 
@@ -174,7 +180,7 @@ async def main():
 				await bot.start(conf['BotSettings']['Token'])
 
 		except discord.errors.LoginFailure:
-			ERROR('\n Invalid Token\n')
+			ERROR(' Invalid Token')
 
 
 if __name__ == '__main__':
@@ -182,4 +188,4 @@ if __name__ == '__main__':
 		asyncio.run(main())
 
 	except KeyboardInterrupt:
-		WARNING('\n key exit is pressed')
+		WARNING('key exit is pressed')

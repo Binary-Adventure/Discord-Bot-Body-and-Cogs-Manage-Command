@@ -12,7 +12,7 @@ from colorama import init
 from colorama import Fore, Style
 
 def writing(text):
-    with open("./logs/logs.log", encoding="utf-8") as file:
+    with open("./logs/logs.log", 'w+') as file:
         file.write(f"{text}\n")
 
 def INFO(text, arg=None) -> None:
