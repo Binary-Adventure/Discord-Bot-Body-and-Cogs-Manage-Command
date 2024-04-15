@@ -7,16 +7,18 @@ ERROR(text, err=None) []
 """
 
 from time import gmtime, strftime
-from os import system
+from colorama import init
+from colorama import Fore, Style
+
 
 
 def INFO(text, arg=None) -> None:
-    system("")
+    init()
     timenow = strftime("%H:%M:%S", gmtime())
     if not arg:
-        print(f"\033[1;32m[ INFO ] \033[4m({timenow}) \033[0m: {text}")
+        print(f"{Fore.GREEN}][ INFO ] {Style.RESET_ALL}{Style.DIM}({timenow}) {Style.RESET_ALL}: {text}")
     else:
-        print(f"\033[1;32m[ INFO ] \033[4m({timenow}) \033[0m - \033[3m [ {arg} ]: \033[0m {text}")
+        print(f"{Fore.GREEN}[ INFO ] {Style.RESET_ALL}{Style.DIM}({timenow}) {Style.RESET_ALL} - {Style.BRIGHT}[ {arg} ]:{Style.RESET_ALL} {text}")
 
 
 def ERROR(text) -> None:
