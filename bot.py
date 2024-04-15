@@ -115,7 +115,7 @@ async def cogs_control(inter: discord.Interaction, mode: app_commands.Choice[str
 		# ? generation of embed with cogs statuses
 		embed = discord.Embed(
 			title=' Cogs:',
-			color=discord.Color.orange()
+			color=discord.Color.green()
 		)
 
 		[embed.add_field(name=i, value='*** +'+'-'*50+'<***') for i in [f' |> {i} is Enable' if i in bot.cogs else f' |> {i} is Disable' if i not in bot.cogs else f' | !!! {i} is not correct working' for i in cogs_in_folder]]
