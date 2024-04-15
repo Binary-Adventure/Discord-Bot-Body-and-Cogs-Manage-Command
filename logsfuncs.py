@@ -9,7 +9,7 @@ ERROR(text, err=None) []
 from time import gmtime, strftime
 
 
-def INFO(text, arg=None):
+def INFO(text, arg=None) -> None:
     timenow = strftime("%H:%M:%S", gmtime())
     if not arg:
         print(f"\033[1;32m[ INFO ] \033[4m({timenow}) \033[0m: {text}")
@@ -18,5 +18,5 @@ def INFO(text, arg=None):
         print(f"\033[1;32m[ INFO ] \033[4m({timenow}) \033[0m - \033[3m [ {arg} ]: \033[0m {text}")
 
 
-def ERROR(text):
+def ERROR(text) -> None:
     pass
