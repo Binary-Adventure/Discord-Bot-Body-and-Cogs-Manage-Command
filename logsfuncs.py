@@ -25,7 +25,7 @@ def INFO(text, arg=None) -> None:
 def ERROR(text, err=None) -> None:
     init()
     timenow = strftime("%H:%M:%S", gmtime())
-    if not arg:
+    if not err:
         raise NameError(f"[{Fore.RED} ERROR {Style.RESET_ALL}] {Style.DIM}({timenow}) {Style.RESET_ALL}: {text}")
     else:
         raise NameError(f"[{Fore.RED} ERROR {Style.RESET_ALL}] {Style.DIM}({timenow}){Style.RESET_ALL}  —  [{Style.BRIGHT} {err} {Style.RESET_ALL}]: {text}")
@@ -34,7 +34,7 @@ def ERROR(text, err=None) -> None:
 def WARNING(text, warn=None) -> None:
     init()
     timenow = strftime("%H:%M:%S", gmtime())
-    if not arg:
+    if not warn:
         print(f"[{Fore.YELLOW} WARNING {Style.RESET_ALL}] {Style.DIM}({timenow}) {Style.RESET_ALL}: {text}")
     else:
         print(f"[{Fore.YELLOW} WARNING {Style.RESET_ALL}] {Style.DIM}({timenow}){Style.RESET_ALL}  —  [{Style.BRIGHT} {warn} {Style.RESET_ALL}]: {text}")
