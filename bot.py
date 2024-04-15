@@ -25,8 +25,11 @@ class DiscordBot(commands.Bot):
 	def __init__(self, *args, **kwargs):
 		super().__init__(*args, **kwargs)
 
-		self.devops = conf['DevelopersID']
-		self.guild_object = discord.Object(id=conf['GuildID'])
+		self.bot_info = {
+			'devops': conf['DevelopersID'],
+			'guild_id': conf['GuildID'],
+			'guild_object': discord.Object(id=conf['GuildID'])
+		}
 
 
 	async def setup_hook(self):
@@ -38,15 +41,23 @@ class DiscordBot(commands.Bot):
 				except Exception as e:
 					WARNING(f'{cog[:-3]}', f'{e}')
 
-		await self.tree.sync(guild=self.guild_object)
+		await self.tree.sync(guild=self.bot_info['guild_object'])
 
 
 	async def on_ready(self):
 		INFO(f"{perf_counter()} seconds after launch", "bot is online")
 
+		self.embed_cogs = await self.get_channel(self.bot_info['guild_object'].channels, name='cogs').send('akfhalkhf')
+
+		print(self.embed_cogs)
+
+
+	async def edit_embed_with_cogs(self):
+		channel = self.get_channel(ctx.guild.channels, name='cogs')
+
 
 	async def on_command_error(self, ctx, exception):
-		if ctx.author.id in self.devops:
+		if ctx.author.id in self.bot_info['devops']:
 			await ctx.author.send(exception)
 
 
@@ -58,7 +69,7 @@ bot = DiscordBot(
 
 
 
-@bot.tree.command(name='cogs', description='...', guild=bot.guild_object)
+@bot.tree.command(name='cogs', description='...', guild=bot.bot_info['guild_object'])
 @app_commands.describe(mode='...', target='...')
 @app_commands.choices(mode=[
 	app_commands.Choice(name='list', value='0'),
@@ -68,7 +79,7 @@ bot = DiscordBot(
 	app_commands.Choice(name='all-reload', value='4')
 ])
 async def cogs_control(inter: discord.Interaction, mode: app_commands.Choice[str], target: str=None):
-	if inter.user.id not in bot.devops:
+	if inter.user.id not in bot.bot_info['devops']:
 		return
 
 	cogs_in_folder = [i[:-3] for i in os.listdir('cogs/') if i.endswith('.py') and i[:1] != '_']
@@ -145,11 +156,6 @@ async def cogs_control(inter: discord.Interaction, mode: app_commands.Choice[str
 			embed=embed,
 			ephemeral=True
 		)
-
-
-@bot.command()
-async def test(ctx, target):
-	await bot.unload_extension(f'cogs.{target}')
 
 
 
