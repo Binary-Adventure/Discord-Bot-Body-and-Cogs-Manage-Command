@@ -11,7 +11,6 @@ from os import system
 
 
 def INFO(text, arg=None) -> None:
-    system("")
     timenow = strftime("%H:%M:%S", gmtime())
     if not arg:
         print(f"\033[1;32m[ INFO ] \033[4m({timenow}) \033[0m: {text}")

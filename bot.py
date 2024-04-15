@@ -47,10 +47,7 @@ class DiscordBot(commands.Bot):
 
 	async def on_command_error(self, ctx, exception):
 		if ctx.author.id in self.devops:
-			await ctx.reply(
-				exception,
-				ephemeral=True
-			)
+			await ctx.author.send(exception)
 
 
 bot = DiscordBot(
@@ -60,15 +57,25 @@ bot = DiscordBot(
 )
 
 
+@bot.command()
+async def test(ctx, member: discord.Member=None):
+	if member == None:
+		member: discord.Member = 663108766689919064
+		print(member)
 
-@bot.tree.command(name='cogs', description='...')
+	else:
+		print(member)
+
+
+
+@bot.tree.command(name='cogs', description='...', guild=bot.guild_object)
 @app_commands.describe(mode='...', target='...')
 @app_commands.choices(mode=[
-	app_commands.Choice(name='list', value=0),
-	app_commands.Choice(name='target-switch', value=1),
-	app_commands.Choice(name='target-reload', value=2)
-	app_commands.Choice(name='all-switch', value=3)
-	app_commands.Choice(name='all-reload', value=4)
+	app_commands.Choice(name='list', value='0'),
+	app_commands.Choice(name='target-switch', value='1'),
+	app_commands.Choice(name='target-reload', value='2'),
+	app_commands.Choice(name='all-switch', value='3'),
+	app_commands.Choice(name='all-reload', value='4')
 ])
 async def cogs_control(inter: discord.Interaction, mode: app_commands.Choice[str], target: str):
 	if inter.user.id not in bot.devops:
@@ -77,7 +84,6 @@ async def cogs_control(inter: discord.Interaction, mode: app_commands.Choice[str
 	cogs_in_folder = [i[:-3] for i in os.listdir('cogs/') if i.endswith('.py') and i[:1] != '_']
 
 	if mode.name == 'target-switch':
-		# ? exam on presence of expan and removing
 		if '.' in target:
 			target[:target.find('.')]
 
@@ -124,6 +130,12 @@ async def cogs_control(inter: discord.Interaction, mode: app_commands.Choice[str
 			embed=embed,
 			ephemeral=True
 		)
+
+
+@bot.command()
+async def asyn(ctx):
+	await bot.tree.sync(guild=bot.guild_object)
+	print("commands is asynced")
 
 
 async def main():
