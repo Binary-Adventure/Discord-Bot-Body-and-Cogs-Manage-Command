@@ -10,4 +10,4 @@ class CogSample(commands.Cog):
 
 
 async def setup(bot):
-	await bot.add_cog(CogSample(bot), guild=bot.bot_info['guild_object'])
+	await bot.add_cog(CogSample(bot), guild=bot.params['guild_object'])
