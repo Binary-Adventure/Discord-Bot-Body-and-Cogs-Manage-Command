@@ -11,6 +11,7 @@ from logsfuncs import INFO, ERROR, WARNING
 
 
 configFile = 'config.json'
+cogsFolder = 'cogs.'
 
 if os.path.exists(configFile):
 	with open(configFile, encoding='utf-8') as file:
@@ -25,7 +26,6 @@ class DiscordBot(commands.Bot):
 	def __init__(self, *args, **kwargs):
 		super().__init__(*args, **kwargs)
 
-		self.cogs_list = [i[:-3] for i in os.listdir('cogs/') if i.endswith('.py') and i[:1] != '_']
 		self.params = {
 			'devops': conf['DevelopersID'],
 			'guild_id': conf['GuildID'],
@@ -34,13 +34,14 @@ class DiscordBot(commands.Bot):
 
 
 	async def setup_hook(self):
-		for cog in os.listdir('cogs/'):
+		# ? first setup all cogs
+		for cog in os.listdir(cogsFolder):
 			if cog.endswith('.py') and cog[:1] != '_':
 				try:
-					await self.load_extension(f'cogs.{cog[:-3]}')
+					await self.load_extension(f'{cogsFolder}{cog[:-3]}')
 
 				except Exception as e:
-					WARNING(f'{cog[:-3]}', f'{e}')
+					WARNING(cog[:-3], e)
 
 		await self.tree.sync(guild=self.params['guild_object'])
 
@@ -48,6 +49,7 @@ class DiscordBot(commands.Bot):
 	async def on_ready(self):
 		INFO(f"{perf_counter()} seconds after launch", "bot is online")
 
+		# ? preparation of the channel for Cogs list
 		self.cogs_channel = discord.utils.get(self.get_guild(self.params['guild_id']).channels, name='cogs')
 		await self.cogs_channel.purge()
 		self.message_cogs = await self.cogs_channel.send(embed=await self.cogs_embed)
@@ -64,13 +66,18 @@ class DiscordBot(commands.Bot):
 			color=discord.Colour.green()
 		)
 
-		[embed.add_field(name=i, value='*** +'+'-'*80+'<***', inline=False) for i in [f' |> {i} is Enable' if i in self.cogs else f' |> {i} is Disable' if i not in self.cogs else f' | !!! {i} is not correct working' for i in [i[:-3] for i in os.listdir('cogs/') if i.endswith('.py') and i[:1] != '_']]]
+		[embed.add_field(name=i, value='*** +'+'-'*80+'<***', inline=False) for i in [f' |> {i} is Enable' if i in self.cogs else f' |> {i} is Disable' if i not in self.cogs else f' | !!! {i} is not correct working' for i in [i[:-3] for i in os.listdir(cogsFolder) if i.endswith('.py') and i[:1] != '_']]]
 		return embed
 
 
 	async def on_command_error(self, ctx, exception):
 		if ctx.author.id in self.params['devops']:
 			await ctx.author.send(exception)
+
+
+	async def on_error(self, inter: discord.Interaction, error):
+		if inter.user.id in self.params['devops']:
+			await inter.response.send_message(error)
 
 
 bot = DiscordBot(
@@ -80,68 +87,89 @@ bot = DiscordBot(
 )
 
 
-@bot.tree.command(name='cogs', description='...', guild=bot.params['guild_object'])
-@app_commands.describe(mode='...', target='...')
+@bot.tree.command(name='cogs', description='command for manage cogs', guild=bot.params['guild_object'])
+@app_commands.describe(mode='choose mode for switch cogs (all or one)', target='enter the cog name for switch him (optional)')
 @app_commands.choices(mode=[
 	app_commands.Choice(name=n, value=i) for i, n in enumerate([
 		'list',
 		'target-switch',
 		'target-reload',
 		'all-switch',
-		'all-reload',
-		'update-folder-list'
+		'all-reload'
 	])
 ],
-	target=[app_commands.Choice(name=n, value=i) for i, n in enumerate(bot.cogs_list)]
+	target=[app_commands.Choice(name=n, value=i) for i, n in enumerate([i[:-3] for i in os.listdir(cogsFolder) if i.endswith('.py') and i[:1] != '_'])]
 )
 async def cogs_manager(inter: discord.Interaction, mode: app_commands.Choice[int], target: app_commands.Choice[int]=None):
 	if inter.user.id not in bot.params['devops']:
 		return
 
-	if mode.name == 'target-switch' or mode.name == 'target-reload':
-		if target.name in bot.cogs and target.name in bot.cogs_list and mode.value == 1:
-			await bot.unload_extension(f'cogs.{target.name}')
+	cogs_folder = [i[:-3] for i in os.listdir(cogsFolder) if i.endswith('.py') and i[:1] != '_']
 
-		elif target.name in bot.cogs and target.name in bot.cogs_list and mode.value == 2:
-			await bot.reload_extension(f'cogs.{target.name}')
+	if mode.value == 1 or mode.value == 2:
+		if target == None:
+			await inter.response.send_message(
+				'For surgery with cog, you need to specify the goal',
+				ephemeral=True
+			)
+			return
 
-		elif target.name not in bot.cogs and target.name in bot.cogs_list:
-			await bot.load_extension(f'cogs.{target.name}')
+		try:
+			if target.name in bot.cogs and target.name in cogs_folder and mode.value == 1:
+				await bot.unload_extension(f'{cogsFolder}{target.name}')
 
-		else:
-			# ! message Error
-			pass
+			elif target.name in bot.cogs and target.name in cogs_folder and mode.value == 2:
+				await bot.reload_extension(f'{cogsFolder}{target.name}')
 
+			elif target.name not in bot.cogs and target.name in cogs_folder:
+				await bot.load_extension(f'{cogsFolder}{target.name}')
 
-	elif mode.name == 'all-switch' or mode.name == 'all-reload':
-		pass
-		# for file in os.listdir('cogs/'):
-		# 	if file.endswith('.py') and file[:1] not in ['_', '-']:
-		# 		try:
-		# 			if file[:-3].lower() in [i.lower() for i in bot.cogs]:
-		# 				await bot.unload_extension(f'cogs.{file[:-3]}')
+			else:
+				# ! message Error
+				ERROR(f'It is impossible to conduct an operation with - {target.name}')
 
-		# 			else:
-		# 				await bot.load_extension(f'cogs.{file[:-3]}')
-
-		# 		except Exception as e:
-		# 			WARNING(f'{file[:-3]}', f'{e}')
-
-		# for file in os.listdir('cogs/'):
-		# 	if file.endswith('.py') and file[:1] not in ['_', '-']:
-		# 		try:
-		# 			if file[:-3].lower() in [i.lower() for i in bot.cogs]:
-		# 				await bot.reload_extension(f'cogs.{file[:-3]}')
-
-		# 			else:
-		# 				await bot.load_extension(f'cogs.{file[:-3]}')
-
-		# 		except Exception as e:
-		# 			WARNING(f'{file[:-3]}', f'{e}')
+		except Exception as e:
+			WARNING(file[:-3], e)
 
 
-	elif mode.name == 'update-folder-list':
-		bot.cogs_list = [i[:-3] for i in os.listdir('cogs/') if i.endswith('.py') and i[:1] != '_']
+	elif mode.value == 3 or mode.value == 4:
+		try:
+			if mode.value == 3:
+				for file in os.listdir(cogsFolder): 
+					if file.endswith('.py') and file[:1] not in ['_', '-']:
+						try:
+							if file[:-3].lower() in [i.lower() for i in bot.cogs]:
+								await bot.unload_extension(f'{cogsFolder}{file[:-3]}')
+
+							else:
+								await bot.load_extension(f'{cogsFolder}{file[:-3]}')
+
+						except Exception as e:
+							WARNING(file[:-3], e)
+
+			elif mode.value == 4:
+				for file in os.listdir(cogsFolder):
+					if file.endswith('.py') and file[:1] not in ['_', '-']:
+						try:
+							if file[:-3].lower() in [i.lower() for i in bot.cogs]:
+								await bot.reload_extension(f'{cogsFolder}{file[:-3]}')
+
+							else:
+								await bot.load_extension(f'{cogsFolder}{file[:-3]}')
+
+						except Exception as e:
+							WARNING(file[:-3], e)
+
+			else:
+				await inter.response.send_message(
+					'The operation cannot be done',
+					ephemeral=True
+				)
+				return
+
+		except Exception as e:
+			print(f' * all_error - {e}')
+
 
 	else:
 		await inter.response.send_message(
@@ -152,6 +180,11 @@ async def cogs_manager(inter: discord.Interaction, mode: app_commands.Choice[int
 		return
 
 	await bot.edit_cogs_embed()
+	await inter.response.send_message(
+		'Operation with cogs is done',
+		ephemeral=True,
+		delete_after=15
+	)
 	await bot.tree.sync(guild=bot.params['guild_object'])
 
 
