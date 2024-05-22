@@ -18,7 +18,7 @@ if os.path.exists(configFile):
 		conf = json.load(file)
 
 else:
-	ERROR('Config File is Not Found')
+	logs.ERROR('Config File is Not Found')
 
 
 
