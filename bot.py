@@ -6,7 +6,7 @@ import asyncio
 import json
 import os
 from time import perf_counter
-from logsfuncs import INFO, ERROR, WARNING
+from loggingModule import logs
 
 
 
@@ -41,13 +41,13 @@ class DiscordBot(commands.Bot):
 					await self.load_extension(f'{cogsFolder}{cog[:-3]}')
 
 				except Exception as e:
-					WARNING(cog[:-3], e)
+					logs.WARNING(cog[:-3], e)
 
 		await self.tree.sync(guild=self.params['guild_object'])
 
 
 	async def on_ready(self):
-		INFO(f"{perf_counter()} seconds after launch", "bot is online")
+		logs.INFO(f"{perf_counter()} seconds after launch", "bot is online")
 
 		# ? preparation of the channel for Cogs list
 		self.cogs_channel = discord.utils.get(self.get_guild(self.params['guild_id']).channels, name='cogs')
@@ -126,10 +126,10 @@ async def cogs_manager(inter: discord.Interaction, mode: app_commands.Choice[int
 
 			else:
 				# ! message Error
-				ERROR(f'It is impossible to conduct an operation with - {target.name}')
+				logs.ERROR(f'It is impossible to conduct an operation with - {target.name}')
 
 		except Exception as e:
-			WARNING(file[:-3], e)
+			logs.WARNING(file[:-3], e)
 
 
 	elif mode.value == 3 or mode.value == 4:
@@ -144,7 +144,7 @@ async def cogs_manager(inter: discord.Interaction, mode: app_commands.Choice[int
 							await bot.load_extension(f'{cogsFolder}{file[:-3]}')
 
 					except Exception as e:
-						WARNING(file[:-3], e)
+						logs.WARNING(file[:-3], e)
 
 		elif mode.value == 4:
 			for file in os.listdir(cogsFolder):
@@ -157,7 +157,7 @@ async def cogs_manager(inter: discord.Interaction, mode: app_commands.Choice[int
 							await bot.load_extension(f'{cogsFolder}{file[:-3]}')
 
 					except Exception as e:
-						WARNING(file[:-3], e)
+						logs.WARNING(file[:-3], e)
 
 		else:
 			await inter.response.send_message(
@@ -187,10 +187,10 @@ async def cogs_manager(inter: discord.Interaction, mode: app_commands.Choice[int
 
 async def main():
 	if not conf['BotSettings']['Token']:
-		ERROR('Token Not Found')
+		logs.ERROR('Token Not Found')
 
 	elif not conf['BotSettings']['Prefix']:
-		ERROR('Prefix Not Found')
+		logs.ERROR('Prefix Not Found')
 
 	else:
 		try:
@@ -198,7 +198,7 @@ async def main():
 				await bot.start(conf['BotSettings']['Token'])
 
 		except discord.errors.LoginFailure:
-			ERROR('Invalid Token')
+			logs.ERROR('Invalid Token')
 
 
 if __name__ == '__main__':
@@ -206,4 +206,4 @@ if __name__ == '__main__':
 		asyncio.run(main())
 
 	except KeyboardInterrupt:
-		WARNING('key exit is pressed')
+		logs.WARNING('key exit is pressed')
