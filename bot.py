@@ -133,42 +133,38 @@ async def cogs_manager(inter: discord.Interaction, mode: app_commands.Choice[int
 
 
 	elif mode.value == 3 or mode.value == 4:
-		try:
-			if mode.value == 3:
-				for file in os.listdir(cogsFolder): 
-					if file.endswith('.py') and file[:1] not in ['_', '-']:
-						try:
-							if file[:-3].lower() in [i.lower() for i in bot.cogs]:
-								await bot.unload_extension(f'{cogsFolder}{file[:-3]}')
+		if mode.value == 3:
+			for file in os.listdir(cogsFolder): 
+				if file.endswith('.py') and file[:1] not in ['_', '-']:
+					try:
+						if file[:-3].lower() in [i.lower() for i in bot.cogs]:
+							await bot.unload_extension(f'{cogsFolder}{file[:-3]}')
 
-							else:
-								await bot.load_extension(f'{cogsFolder}{file[:-3]}')
+						else:
+							await bot.load_extension(f'{cogsFolder}{file[:-3]}')
 
-						except Exception as e:
-							WARNING(file[:-3], e)
+					except Exception as e:
+						WARNING(file[:-3], e)
 
-			elif mode.value == 4:
-				for file in os.listdir(cogsFolder):
-					if file.endswith('.py') and file[:1] not in ['_', '-']:
-						try:
-							if file[:-3].lower() in [i.lower() for i in bot.cogs]:
-								await bot.reload_extension(f'{cogsFolder}{file[:-3]}')
+		elif mode.value == 4:
+			for file in os.listdir(cogsFolder):
+				if file.endswith('.py') and file[:1] not in ['_', '-']:
+					try:
+						if file[:-3].lower() in [i.lower() for i in bot.cogs]:
+							await bot.reload_extension(f'{cogsFolder}{file[:-3]}')
 
-							else:
-								await bot.load_extension(f'{cogsFolder}{file[:-3]}')
+						else:
+							await bot.load_extension(f'{cogsFolder}{file[:-3]}')
 
-						except Exception as e:
-							WARNING(file[:-3], e)
+					except Exception as e:
+						WARNING(file[:-3], e)
 
-			else:
-				await inter.response.send_message(
-					'The operation cannot be done',
-					ephemeral=True
-				)
-				return
-
-		except Exception as e:
-			print(f' * all_error - {e}')
+		else:
+			await inter.response.send_message(
+				'The operation cannot be done',
+				ephemeral=True
+			)
+			return
 
 
 	else:
