@@ -163,3 +163,5 @@ cython_debug/
 config.json
 .bat
 cogs/trashCog.py
+cogs/RockPaperScissors.py
+
