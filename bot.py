@@ -6,6 +6,7 @@ import asyncio
 import json
 import os
 from time import perf_counter
+
 from loggingModule import logs
 
 
@@ -47,27 +48,12 @@ class DiscordBot(commands.Bot):
 
 
 	async def on_ready(self):
-		logs.INFO(f"{perf_counter()} seconds after launch", "bot is online")
-
 		# ? preparation of the channel for Cogs list
 		self.cogs_channel = discord.utils.get(self.get_guild(self.params['guild_id']).channels, name='cogs')
 		await self.cogs_channel.purge()
 		self.message_cogs = await self.cogs_channel.send(embed=await self.cogs_embed)
 
-
-	async def edit_cogs_embed(self):
-		await self.message_cogs.edit(embed=await self.cogs_embed)
-
-
-	@property
-	async def cogs_embed(self):
-		embed = discord.Embed(
-			title=' Cogs:',
-			color=discord.Colour.green()
-		)
-
-		[embed.add_field(name=i, value='*** +'+'-'*80+'<***', inline=False) for i in [f' |> {i} is Enable' if i in self.cogs else f' |> {i} is Disable' if i not in self.cogs else f' | !!! {i} is not correct working' for i in [i[:-3] for i in os.listdir(cogsFolder) if i.endswith('.py') and i[:1] != '_']]]
-		return embed
+		logs.INFO(f"{perf_counter()} seconds after launch", "bot is online")
 
 
 	async def on_command_error(self, ctx, exception):
@@ -80,11 +66,26 @@ class DiscordBot(commands.Bot):
 			await inter.response.send_message(error)
 
 
+
+	@property
+	async def cogs_embed(self):
+		embed = discord.Embed(
+			title=' Cogs:',
+			color=discord.Colour.green()
+		)
+
+		[embed.add_field(name=i, value='*** +'+'-'*80+'<***', inline=False) for i in [f' |> {i} is Enable' if i in self.cogs else f' |> {i} is Disable' if i not in self.cogs else f' | !!! {i} is not correct working' for i in [i[:-3] for i in os.listdir(cogsFolder) if i.endswith('.py') and i[:1] != '_']]]
+
+		return embed
+
+
+
 bot = DiscordBot(
 	command_prefix=conf['BotSettings']['Prefix'],
 	help_command=None,
 	intents=discord.Intents.all()
 )
+
 
 
 @bot.tree.command(name='cogs', description='command for manage cogs', guild=bot.params['guild_object'])
@@ -166,16 +167,14 @@ async def cogs_manager(inter: discord.Interaction, mode: app_commands.Choice[int
 			)
 			return
 
-
 	else:
 		await inter.response.send_message(
 			embed=await bot.cogs_embed,
 			ephemeral=True
 		)
-
 		return
 
-	await bot.edit_cogs_embed()
+	await bot.message_cogs.edit(embed=await bot.cogs_embed)
 	await inter.response.send_message(
 		'Operation with cogs is done',
 		ephemeral=True,
