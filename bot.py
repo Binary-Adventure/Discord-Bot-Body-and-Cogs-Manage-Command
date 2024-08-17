@@ -14,9 +14,22 @@ from loggingModule import logs
 configFile = 'config.json'
 cogsFolder = 'cogs.'
 
+
 if os.path.exists(configFile):
 	with open(configFile, encoding='utf-8') as file:
 		conf = json.load(file)
+
+		# ! config example for config file with settings
+		'''
+		{
+			"BotSettings": {
+				"Token": "",
+				"Prefix": "!"
+			},
+			"GuildID": 0,
+			"DevelopersID": []
+		}
+		'''
 
 else:
 	logs.ERROR('Config File is Not Found')
@@ -74,7 +87,7 @@ class DiscordBot(commands.Bot):
 			color=discord.Colour.green()
 		)
 
-		[embed.add_field(name=i, value='*** +'+'-'*80+'<***', inline=False) for i in [f' |> {i} is Enable' if i in self.cogs else f' |> {i} is Disable' if i not in self.cogs else f' | !!! {i} is not correct working' for i in [i[:-3] for i in os.listdir(cogsFolder) if i.endswith('.py') and i[:1] != '_']]]
+		[embed.add_field(name=_, value='*** +'+'-'*80+'<***', inline=False) for _ in [f' |> {_} is Enable' if _ in self.cogs else f' |> {_} is Disable' if _ not in self.cogs else f' | !!! {_} is not correct working' for _ in [_[:-3] for _ in os.listdir(cogsFolder) if _.endswith('.py') and _[:1] != '_']]]
 
 		return embed
 
@@ -105,7 +118,7 @@ async def cogs_manager(inter: discord.Interaction, mode: app_commands.Choice[int
 	if inter.user.id not in bot.params['devops']:
 		return
 
-	cogs_folder = [i[:-3] for i in os.listdir(cogsFolder) if i.endswith('.py') and i[:1] != '_']
+	cogs_folder = [_[:-3] for _ in os.listdir(cogsFolder) if _.endswith('.py') and _[:1] != '_']
 
 	if mode.value == 1 or mode.value == 2:
 		if target == None:

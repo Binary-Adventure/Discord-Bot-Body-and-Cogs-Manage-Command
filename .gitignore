@@ -160,6 +160,7 @@ cython_debug/
 #.idea/
 
 # my ignores
+logs/
 config.json
 .bat
 cogs/trashCog.py
